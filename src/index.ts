@@ -3,18 +3,26 @@
 // This script reads a Markdown file and creates an index of all headings.
 
 import fs from 'fs';
-import { type } from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 
-// Hilfsfunktionen für __dirname (weil __dirname in ES Modules nicht verfügbar ist)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+interface IndexPosition {
+    type: 'create' | 'update'; // create or update
+    line_start?: number;       // start line for update
+    line_end?: number;         // end line for update
+    line?: number;             // line for create
+}
+
+
+interface Heading_Index {
+    level: number;            // Heading level (1-6)
+    title: string;            // Title of the heading
+    line: number;             // Line number in the file
+}
 
 
 // Export Functions
-function create(file_path) {
+function create(file_path: string) {
     const content = fs.readFileSync(file_path, 'utf-8');
 
     const index_position = lookup_index(content);
@@ -33,7 +41,11 @@ function create(file_path) {
 
     const index = read_and_index(content);
 
-    write_index(file_path, index, index_position);
+    if (index_position !== null) {
+        write_index(file_path, index, index_position);
+    } else {
+        console.error("Index position is null. Cannot write index.");
+    }
 
     console.log(`Index created for ${file_path}`);
 }
@@ -41,9 +53,9 @@ function create(file_path) {
 
 // Function to read the content
 // and return an array of Headings
-function read_and_index(content) {
+function read_and_index(content: string): Heading_Index[] {
     const lines = content.split('\n');
-    const index = [];
+    const index: Heading_Index[] = [];
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
@@ -72,7 +84,7 @@ function read_and_index(content) {
 // INFO:
 // if the index position is not valid or not found,
 // the return will be null
-function lookup_index(content) {
+function lookup_index(content: string) {
     const lines = content.split('\n');
 
     for (let i = 0; i < lines.length; i++) {
@@ -81,12 +93,12 @@ function lookup_index(content) {
 
         if (match) {
             const start = i + 1;
-            match_end = line.match(/<!--\$\$((MD_INDEX_END))\$\$-->/);
+            const match_end = line.match(/<!--\$\$((MD_INDEX_END))\$\$-->/);
 
             if (match_end) {
                 const end = i + 1;
 
-                const position = {
+                const position: IndexPosition = {
                     type: 'update',
                     line_start: start,
                     line_end: end
@@ -101,7 +113,7 @@ function lookup_index(content) {
             const match_create = line.match(/<!--\$\$((MD_INDEX))\$\$-->/)
             if (match_create) {
                 // create the index here
-                const position = {
+                const position: IndexPosition = {
                     type: 'create',
                     line: i + 1
                 }
@@ -114,7 +126,7 @@ function lookup_index(content) {
 }
 
 
-function write_index(file_path, index) {
+function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition) {
     const content = fs.readFileSync(file_path, 'utf-8');
     const lines = content.split('\n');
 
@@ -137,8 +149,11 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     // const mdFiles = fs.readdirSync(__dirname).filter(file => file.endsWith('.md'));
     // for (const file of mdFiles) {
 
-    const mdFile = path.join(__dirname, 'README.md');
-    create(mdFile);
+    console.log(__dirname)
+    console.log(process.cwd());
+
+    //const mdFile = path.join(__dirname, 'README.md');
+    //create(mdFile);
 }
 
 
@@ -151,7 +166,7 @@ function search_all_md_files() {
 
 
 function create_all() {
-    files = search_all_md_files();
+    const files = search_all_md_files();
     for (const file of files) {
         const file_path = path.join(__dirname, file);
         create(file_path);

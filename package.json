@@ -8,9 +8,20 @@
     "type": "git",
     "url": "https://github.com/Shadowdara/automatic-md-index"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "type": "commonjs",
   "scripts": {
-    "start": "node index.js",
-    "test": "node test.js"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "dev.bat",
+    "test": "npx ts-node test/test.ts"
   },
   "keywords": [
     "markdown",
@@ -27,9 +38,10 @@
     "markdown table of contents generator",
     "markdown index generator"
   ],
-  "main": "index.js",
-  "type": "module",
-  "exports": {
-    ".": "./index.js"
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "undici-types": "^7.9.0"
   }
 }
