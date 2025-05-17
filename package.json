@@ -1,0 +1,35 @@
+{
+  "name": "automatic-md-index",
+  "version": "1.0.0",
+  "description": "Automatically generate a table of contents from headings in Markdown files.",
+  "author": "Shadowdara",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shadowdara/automatic-md-index"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "markdown",
+    "index",
+    "automatic",
+    "headings",
+    "table of contents",
+    "toc",
+    "markdown index",
+    "markdown headings",
+    "markdown toc",
+    "markdown table of contents",
+    "markdown toc generator",
+    "markdown table of contents generator",
+    "markdown index generator"
+  ],
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  }
+}
