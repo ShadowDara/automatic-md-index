@@ -20,8 +20,11 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "dev.bat",
-    "test": "npx ts-node test/test.ts"
+    "dev": "npm run build && npm run start",
+    "test": "echo Running Tests && node test/index.js && npm run build && npm run test-start",
+    "test-nd": "echo Running Tests Without Debug Information! && npm run dev",
+    "test-start": "node dist/index.js --test",
+    "test-files": "node test/index.js"
   },
   "keywords": [
     "markdown",

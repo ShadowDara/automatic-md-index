@@ -1,3 +1,4 @@
 # Ignore the build output directory
 dist/
 node_modules/
+markdown_output/

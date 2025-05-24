@@ -2,9 +2,10 @@
 // Create MD Index
 // This script reads a Markdown file and creates an index of all headings.
 
-import fs from 'fs';
+import fs, { copyFileSync } from 'fs';
 import path from 'path';
 
+let test_mode = false;
 
 interface IndexPosition {
     type: 'create' | 'update'; // create or update
@@ -20,36 +21,10 @@ interface Heading_Index {
     line: number;             // Line number in the file
 }
 
-
-// Export Functions
-function create(file_path: string) {
-    const content = fs.readFileSync(file_path, 'utf-8');
-
-    const index_position = lookup_index(content);
-
-    if (index_position === null) {
-        console.error()
-    } else if (index_position.type === 'update') {
-
-    } else if (index_position.type === 'create') {
-
-    } else {
-        console.error("Could not create index for file: " + file_path);
-        return;
-    }
-    // Error
-
-    const index = read_and_index(content);
-
-    if (index_position !== null) {
-        write_index(file_path, index, index_position);
-    } else {
-        console.error("Index position is null. Cannot write index.");
-    }
-
-    console.log(`Index created for ${file_path}`);
+const error = {
+    1: "Line 150 - add the Error!",
+    2: "eww"
 }
-
 
 // Function to read the content
 // and return an array of Headings
@@ -80,12 +55,41 @@ function read_and_index(content: string): Heading_Index[] {
 }
 
 
+function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition) {
+    const content = fs.readFileSync(file_path, 'utf-8');
+    const lines = content.split('\n');
+
+    // Add the index at the beginning of the file
+    const index_lines = index.map(item => {
+        return `${'  '.repeat((item.level - 1))}- [${item.title}](#${item.title.replace(/\s+/g, '-').toLowerCase()})`;
+    });
+
+    if (index_position.type === 'update') {
+        console.log("Updating Index")
+
+    } else if ((index_position.type === 'create') && (index_position.line != null)) {
+        lines.splice(index_position.line, 1, "# Index");
+        console.log("Line Deleted!")
+        for (const i in index_lines) {
+            lines.splice(index_position.line + Number(i) + 1, 0, index_lines[i])
+            console.log(index_lines[i])
+        }
+    }
+
+    // Insert the index at the beginning of the file
+    fs.writeFileSync(file_path, lines.join('\n'), 'utf-8');
+}
+
+
 // to see if an idex should be created in the and where
 // INFO:
 // if the index position is not valid or not found,
 // the return will be null
 function lookup_index(content: string) {
     const lines = content.split('\n');
+
+    d("")
+    d("Looking for Index")
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
@@ -113,9 +117,12 @@ function lookup_index(content: string) {
             const match_create = line.match(/<!--\$\$((MD_INDEX))\$\$-->/)
             if (match_create) {
                 // create the index here
+
+                d("")
+                d("Index Create Found!")
                 const position: IndexPosition = {
                     type: 'create',
-                    line: i + 1
+                    line: i
                 }
                 return position
             }
@@ -126,18 +133,41 @@ function lookup_index(content: string) {
 }
 
 
-function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition) {
+// Export Functions
+function create(file_path: string) {
     const content = fs.readFileSync(file_path, 'utf-8');
-    const lines = content.split('\n');
 
-    // Add the index at the beginning of the file
-    const index_lines = index.map(item => {
-        return `${'#'.repeat(item.level)} [${item.title}](#${item.title.replace(/\s+/g, '-').toLowerCase()})`;
-    });
+    const index_position = lookup_index(content);
 
-    // Insert the index at the beginning of the file
-    lines.unshift(...index_lines);
-    fs.writeFileSync(file_path, lines.join('\n'), 'utf-8');
+    d("\nafter Look Index\n")
+
+    console.log(index_position)
+
+    if (index_position === null) {
+        console.error("No Index created for File: " + file_path)
+        return
+    } else {
+        const index = read_and_index(content);
+        if (index_position !== null) {
+            write_index(file_path, index, index_position);
+        } else {
+            console.error(error[1]);
+        }
+
+        console.log(`Index created for ${file_path}`);
+    }
+
+    /*
+    if (index_position.type === 'update') {
+        console.log("Updating Index")
+
+    } else if (index_position.type === 'create') {
+        console.log("Creating Index")
+
+    } 
+    }
+        */
+    // Error
 }
 
 
@@ -146,38 +176,40 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     // and subdirectories
     // and a way to ignore some md files
 
-    // const mdFiles = fs.readdirSync(__dirname).filter(file => file.endsWith('.md'));
-    // for (const file of mdFiles) {
+    const args = process.argv.slice(2);
 
-    console.log(__dirname)
-    console.log(process.cwd());
+    let execution_path = process.cwd();
 
-    //const mdFile = path.join(__dirname, 'README.md');
-    //create(mdFile);
+    for (const arg of args) {
+        if (arg === '--test') {
+            test_mode = true;
+            d("Starting: Testmode")
+            d("Using: Testpath\n")
+            execution_path = path.join(process.cwd(), "test", "markdown_output");
+        }
+    }
+
+    console.log(execution_path);
+
+    const mdFiles = fs.readdirSync(execution_path).filter(file => file.endsWith('.md')).map(file => path.join(execution_path, file));
+
+
+    for (const file of mdFiles) {
+        console.log(file)
+        create(file)
+    }
 }
 
 
-function search_all_md_files() {
-    // search all md files in the current directory
-    // and subdirectories
-    const mdFiles = fs.readdirSync(__dirname).filter(file => file.endsWith('.md'));
-    return mdFiles;
-}
-
-
-function create_all() {
-    const files = search_all_md_files();
-    for (const file of files) {
-        const file_path = path.join(__dirname, file);
-        create(file_path);
+function d(msg: string) {
+    if (test_mode) {
+        console.log(msg)
     }
 }
 
 
 // exporting functions
 export {
-    search_all_md_files,
-    create_all,
     create,
     read_and_index,
     write_index,
