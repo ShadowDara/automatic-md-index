@@ -16,11 +16,14 @@
       "require": "./dist/index.js"
     }
   },
+  "bin": {
+    "md-index": "./dist/index.js"
+  },
   "type": "commonjs",
   "scripts": {
     "help": "npm run dev -- -- --help",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node ./dist/index.js",
     "dev": "npm run build && npm run start",
     "test": "echo Running Tests && node test/index.js && npm run build && npm run test-start",
     "test-nd": "echo Running Tests Without Debug Information! && npm run build && node dist/index.js",

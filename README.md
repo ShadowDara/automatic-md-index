@@ -13,12 +13,13 @@ a TS package to add Header Indexes to Markdown Files
     DO NOT REMOVE THIS CREDIT !!!
 
     Last Update Time of the Index:
-    2025-11-06T17:37:24.335Z
+    2025-11-06T19:00:26.968Z
 -->
 ## Index
 - [automatic md index](#automatic-md-index)
-  - [TODO](#todo)
+  - [Infos](#infos)
 <!-- Index by Automatic MD Index -->
 <!--$$MD_INDEX_END$$-->
 
 ## Infos
+Run with help for Infos
