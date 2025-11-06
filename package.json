@@ -18,13 +18,17 @@
   },
   "type": "commonjs",
   "scripts": {
+    "help": "npm run dev -- -- --help",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "npm run build && npm run start",
     "test": "echo Running Tests && node test/index.js && npm run build && npm run test-start",
-    "test-nd": "echo Running Tests Without Debug Information! && npm run dev",
+    "test-nd": "echo Running Tests Without Debug Information! && npm run build && node dist/index.js",
     "test-start": "node dist/index.js --test",
-    "test-files": "node test/index.js"
+    "test-files": "node test/index.js",
+    
+    "bdev": "bun x tsc --noEmit && bun run src/index.ts",
+    "btest": "bun x tsc --noEmit && bun run test/index.js && bun run src/index.ts --test"
   },
   "keywords": [
     "markdown",

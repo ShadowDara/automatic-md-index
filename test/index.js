@@ -13,7 +13,7 @@ if (!fs.existsSync(outputDir)) {
 let i = 1;
 let filename
 
-let content = '';
+let content = '# Testfile 1\n\n';
 
 content += `<!--$$MD_INDEX$$-->\n\n`;
 

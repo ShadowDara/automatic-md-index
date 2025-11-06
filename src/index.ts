@@ -1,11 +1,22 @@
-// MIT License Shadowdara 2025
-// Create MD Index
-// Dieses Skript liest eine Markdown-Datei ein und erstellt automatisch
-// ein Inhaltsverzeichnis (Index) basierend auf allen gefundenen Überschriften.
+/* 
+ * MIT License Shadowdara 2025
+ * Create MD Index
+ * Dieses Skript liest eine Markdown-Datei ein und erstellt automatisch
+ * ein Inhaltsverzeichnis (Index) basierend auf allen gefundenen Überschriften.
+ * 
+ */
 
 // Import von Node.js-Modulen
 import fs, { copyFileSync } from 'fs';
 import path from 'path';
+
+// Import Local Functions
+import { mdindex_help } from './helper';
+
+// Const for the Index Recognition
+const index_start = "<!--$$MD_INDEX_START$$-->";
+const index_end = "<!--$$MD_INDEX_END$$-->";
+const index_create = "<!--$$MD_INDEX$$-->";
 
 // Testmodus – aktiviert zusätzliche Konsolenausgaben
 let test_mode = false;
@@ -71,8 +82,7 @@ function read_and_index(content: string): Heading_Index[] {
 // ------------------------------------------------------------
 // Schreibt den erstellten Index in die Markdown-Datei.
 // Je nach Typ (create/update) wird er entweder neu eingefügt oder ersetzt.
-function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition) {
-    const content = fs.readFileSync(file_path, 'utf-8');
+function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition, content: String) {
     const lines = content.split('\n');
 
     // Den eigentlichen Indextext aus den Überschriften aufbauen
@@ -81,21 +91,82 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
         return `${'  '.repeat((item.level - 1))}- [${item.title}](#${item.title.replace(/\s+/g, '-').toLowerCase()})`;
     });
 
+    // Updating the Index
     if (index_position.type === 'update') {
-        console.log("Updating Index");
+        // Print Info
+        console.log("Updating Index for File: " + file_path);
+
         // Hier könnte man den alten Index zwischen line_start und line_end ersetzen
         // (noch nicht implementiert)
+
+        // TODO
+        if (index_position.line_start === undefined) {
+            process.exit(1);
+        }
+        if (index_position.line_end === undefined) {
+            process.exit(1);
+        }
+
+        console.log(index_position.line_start)
+        console.log(index_position.line_end)
+
+        const st = index_position.line_start;
+        const ed = index_position.line_end;
+
+        // Alles zwischen start und end line löschen
+        // Why do you not work?
+        lines.splice(st - 1, ed - st + 1, index_create);
+
+        // Tranform the Array of Lines to one String seperated with \n
+        const content = lines.join("\n");
+
+        // Neuen Index generieren
+        write_index(file_path, index, index_position, content);
+
+        // Returning because the function calls itself
+        return;
     }
+
+    // Creating the Index
     else if ((index_position.type === 'create') && (index_position.line != null)) {
+        // Print Info
+        console.log("Creating Index for File: " + file_path);
+
+        // Get the current Date
+        const now = new Date();
+
+        // Message which gets added before the Index when creating an Index
+        const top = index_start + `
+<!-- 
+    Index by Automatic MD Index
+    a simple Tool to Index your Markdown files like this
+
+    More Infos:
+    https://github.com/ShadowDara/automatic-md-index
+
+    DO NOT REMOVE THIS CREDIT !!!
+
+    Last Update Time of the Index:
+    ${now.toISOString()}
+-->
+` + "## Index";
+
+        // Message which gets added after the Creation of an Index
+        const bottom = "<!-- Index by Automatic MD Index -->\n" + index_end;
+
         // Wenn ein Platzhalter für den Index gefunden wurde, dort einfügen
-        lines.splice(index_position.line, 1, "# Index"); // Platzhalterzeile ersetzen
-        console.log("Line Deleted!");
+        lines.splice(index_position.line, 1, top);
+        // Platzhalterzeile ersetzen
 
         // Danach alle Indexzeilen direkt darunter einfügen
         for (const i in index_lines) {
             lines.splice(index_position.line + Number(i) + 1, 0, index_lines[i]);
-            console.log(index_lines[i]);
+            // console.log(index_lines[i]);
         }
+
+        // Nach der letzten Index-Zeile noch 'bottom' hinzufügen
+        const last_index_line = index_position.line + index_lines.length;
+        lines.splice(last_index_line + 1, 0, bottom);
     }
 
     // Änderungen wieder in die Datei schreiben
@@ -126,7 +197,7 @@ function lookup_index(content: string) {
         const line = lines[i];
 
         // Prüfen, ob bereits ein Index vorhanden ist (für Update)
-        const match = line.match(/<!--\$\$((<!--\$\$((MD_INDEX_START))\$\$-->))\$\$-->/);
+        const match = line.match(/<!--\$\$((MD_INDEX_START))\$\$-->/);
 
         // Looking for the begin of the Index
         if (match) {
@@ -164,7 +235,7 @@ function lookup_index(content: string) {
 
     // Kein End for MD Index gefunden
     if(start != 0 && end == 0) {
-        console.error('No index end specifier found');
+        console.error('No index End specifier found');
         return null;
     }
 
@@ -191,9 +262,9 @@ function create(file_path: string) {
 
     debug_message("\nafter Look Index\n");
 
-    // Print the Indexpostion Interface which contains
-    // the type of the work for the index and the Line for the Index
-    console.log(index_position);
+    // // Print the Indexpostion Interface which contains
+    // // the type of the work for the index and the Line for the Index
+    // console.log(index_position);
 
     if (index_position === null) {
         console.error("No Index created for File: " + file_path);
@@ -201,7 +272,8 @@ function create(file_path: string) {
     } else {
         const index = read_and_index(content);
         if (index_position !== null) {
-            write_index(file_path, index, index_position);
+            const content = fs.readFileSync(file_path, 'utf-8');
+            write_index(file_path, index, index_position, content);
         } else {
             console.error(error[1]);
         }
@@ -221,8 +293,13 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     const args = process.argv.slice(2);
     let execution_path = process.cwd(); // aktuelles Arbeitsverzeichnis
 
-    // Wenn "--test" übergeben wurde, Testmodus aktivieren
     for (const arg of args) {
+        // Printing help bei --help arg
+        if (arg === '--help') {
+            mdindex_help();
+            process.exit(0);
+        }
+        // Wenn "--test" übergeben wurde, Testmodus aktivieren
         if (arg === '--test') {
             test_mode = true;
             debug_message("Starting: Testmode");
@@ -233,7 +310,7 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     }
 
     // Printing the Execution Path into the Terminal
-    console.log(execution_path);
+    debug_message(execution_path);
 
     // Alle Markdown-Dateien im Verzeichnis suchen
     const mdFiles = fs.readdirSync(execution_path)
@@ -243,7 +320,7 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     // Für jede Datei den Index erstellen
     for (const file of mdFiles) {
         // Printing the Current File
-        console.log(file);
+        debug_message(file);
         create(file);
     }
 }
