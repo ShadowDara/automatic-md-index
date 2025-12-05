@@ -8,7 +8,7 @@ import {
 } from './index';
 
 // Function to update the Index
-export function update_index(index_position: IndexPosition, file_path: string, lines: string[]) {
+export function update_index(index_position: IndexPosition, file_path: string, lines: string[]): void {
     // Print Info
     console.log("Updating Index for File: " + file_path);
 

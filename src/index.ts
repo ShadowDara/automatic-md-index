@@ -276,6 +276,17 @@ function create(file_path: string) {
 
 
 // ------------------------------------------------------------
+// Hilfsfunktion: debug_message()
+// ------------------------------------------------------------
+// Gibt Debug-Nachrichten nur aus, wenn test_mode aktiv ist.
+function debug_message(msg: string): void {
+    if (test_mode) {
+        console.log(msg);
+    }
+}
+
+
+// ------------------------------------------------------------
 // CLI-Teil (wird nur ausgeführt, wenn Datei direkt gestartet wird)
 // ------------------------------------------------------------
 if (path.resolve(__filename) === path.resolve(process.argv[1])) {
@@ -297,14 +308,14 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
         if (arg === '--no-strict') {
             strict_mode = false;
         }
-        // Wenn "--test" übergeben wurde, Testmodus aktivieren
-        if (arg === '--test') {
-            test_mode = true;
-            debug_message("Starting: Testmode");
-            debug_message("Using: Testpath\n");
-            // Testverzeichnis definieren
-            execution_path = path.join(process.cwd(), "test", "markdown_output");
-        }
+        // // Wenn "--test" übergeben wurde, Testmodus aktivieren
+        // if (arg === '--test') {
+        //     test_mode = true;
+        //     debug_message("Starting: Testmode");
+        //     debug_message("Using: Testpath\n");
+        //     // Testverzeichnis definieren
+        //     execution_path = path.join(process.cwd(), "test", "markdown_output");
+        // }
         // Read the file
         if (arg.startsWith("--files=")) {
             const files = arg.slice(8);
@@ -325,17 +336,6 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
         // Printing the Current File
         debug_message(file);
         create(file);
-    }
-}
-
-
-// ------------------------------------------------------------
-// Hilfsfunktion: debug_message()
-// ------------------------------------------------------------
-// Gibt Debug-Nachrichten nur aus, wenn test_mode aktiv ist.
-function debug_message(msg: string) {
-    if (test_mode) {
-        console.log(msg);
     }
 }
 

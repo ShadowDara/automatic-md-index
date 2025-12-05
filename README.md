@@ -13,13 +13,29 @@ a TS package to add Header Indexes to Markdown Files
     DO NOT REMOVE THIS CREDIT !!!
 
     Last Update Time of the Index:
-    2025-11-06T19:00:26.968Z
+    2025-12-05T12:20:10.372Z
 -->
 ## Index
 - [automatic md index](#automatic-md-index)
   - [Infos](#infos)
+  - [Test](#test)
+  - [Update the Readme Index](#update-the-readme-index)
+  - [Adiotional Ideas](#adiotional-ideas)
 <!-- Index by Automatic MD Index -->
 <!--$$MD_INDEX_END$$-->
 
 ## Infos
-Run with help for Infos
+Run with --help for Infos
+
+## Test
+run `npm run test`
+
+## Update the Readme Index
+```
+npm run updaterm
+```
+
+## Adiotional Ideas
+- option to disable the 1. Heading
+- disable some headings
+- convert the Headings to html
