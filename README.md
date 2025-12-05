@@ -27,6 +27,14 @@ a TS package to add Header Indexes to Markdown Files
 ## Infos
 Run with --help for Infos
 
+## Generate the Index
+
+to generate the Index at the location in your Markdown file, add
+```
+<!--$$MD_INDEX$$-->
+```
+to it, and the Index will generated and updated there!
+
 ## Test
 run `npm run test`
 
