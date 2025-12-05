@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Shadowdara/automatic-md-index"
+    "url": "git+https://github.com/Shadowdara/automatic-md-index.git"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,7 +17,7 @@
     }
   },
   "bin": {
-    "md-index": "./dist/index.js"
+    "md-index": "dist/index.js"
   },
   "type": "commonjs",
   "scripts": {
@@ -30,7 +30,6 @@
     "test-nd": "echo Running Tests Without Debug Information! && npm run build && node dist/index.js",
     "test-start": "node dist/index.js --files=test/markdown_output/datei1.md,test/markdown_output/datei2.md,test/markdown_output/datei3.md",
     "test-files": "node test/index.js",
-    
     "bdev": "bun x tsc --noEmit && bun run src/index.ts",
     "btest": "bun x tsc --noEmit && bun run test/index.js && bun run src/index.ts --test"
   },
