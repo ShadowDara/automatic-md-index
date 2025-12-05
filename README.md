@@ -13,11 +13,12 @@ a TS package to add Header Indexes to Markdown Files
     DO NOT REMOVE THIS CREDIT !!!
 
     Last Update Time of the Index:
-    2025-12-05T12:20:10.372Z
+    2025-12-05T13:11:51.473Z
 -->
 ## Index
 - [automatic md index](#automatic-md-index)
   - [Infos](#infos)
+  - [Generate the Index](#generate-the-index)
   - [Test](#test)
   - [Update the Readme Index](#update-the-readme-index)
   - [Adiotional Ideas](#adiotional-ideas)
@@ -40,6 +41,7 @@ run `npm run test`
 
 ## Update the Readme Index
 ```
+# Command
 npm run updaterm
 ```
 

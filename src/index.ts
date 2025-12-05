@@ -16,6 +16,7 @@ import path from 'path';
 // Import Local Functions
 import { mdindex_help } from './helper';
 import { update_index } from './write';
+import { checklastcharacter } from './check';
 
 // Const for the Index Recognition
 const index_start = "<!--$$MD_INDEX_START$$-->";
@@ -56,31 +57,63 @@ const error = {
 // Liest den Markdown-Inhalt und gibt ein Array aller Überschriften zurück.
 // Unterstützt sowohl Markdown-Syntax (# ...) als auch HTML-Überschriften (<h1>...</h1>).
 function read_and_index(content: string): Heading_Index[] {
-    const lines = content.split('\n'); // Datei in einzelne Zeilen aufteilen
+    const lines = content.split('\n');
     const index: Heading_Index[] = [];
+
+    let inCodeBlock = false;
+    let inPreBlock = false;
+    let inHtmlComment = false;
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        // Markdown-Überschriften erkennen (z. B. ## Titel)
+        // --- Blockstatus ändern ----------------------------------
+
+        // HTML-Kommentare
+        if (line.includes("<!--")) inHtmlComment = true;
+        if (line.includes("-->")) {
+            inHtmlComment = false;
+            continue; // Nicht verarbeiten
+        }
+
+        // <pre>...</pre> Block
+        if (line.includes("<pre")) inPreBlock = true;
+        if (line.includes("</pre>")) {
+            inPreBlock = false;
+            continue;
+        }
+
+        // Codeblöcke ```, ``````, etc.
+        if (line.match(/^`{3,}$/)) {
+            inCodeBlock = !inCodeBlock;
+            continue;
+        }
+
+        // Wenn in einem Block → keine Erkennung durchführen
+        if (inCodeBlock || inPreBlock || inHtmlComment) {
+            continue;
+        }
+
+        // --- Markdown-Überschriften erkennen ------------------------
         const match = line.match(/^(#{1,6})\s+(.*)/);
 
         if (match) {
-            const level = match[1].length;   // Anzahl der '#' = Ebene der Überschrift
-            const title = match[2].trim();   // Text der Überschrift
-            index.push({ level, title, line: i + 1 }); // In Liste aufnehmen (Zeilen sind 1-basiert)
+            const level = match[1].length;
+            const title = match[2].trim();
+            index.push({ level, title, line: i + 1 });
+            continue;
         }
-        else {
-            // HTML-Überschriften erkennen (z. B. <h2>Titel</h2>)
-            const match_html = line.match(/<h([1-6])>(.*?)<\/h\1>/);
 
-            if (match_html) {
-                const level = parseInt(match_html[1], 10);
-                const title = match_html[2].trim();
-                index.push({ level, title, line: i + 1 });
-            }
+        // --- HTML-Überschriften erkennen ----------------------------
+        const match_html = line.match(/<h([1-6])>(.*?)<\/h\1>/);
+
+        if (match_html) {
+            const level = parseInt(match_html[1], 10);
+            const title = match_html[2].trim();
+            index.push({ level, title, line: i + 1 });
         }
     }
+
     return index;
 }
 
@@ -162,7 +195,7 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
 // <!--$$MD_INDEX$$-->  → Index soll hier erstellt werden
 // <!--$$MD_INDEX_START$$--> und <!--$$MD_INDEX_END$$--> → Bereich für Update
 // Gibt ein IndexPosition-Objekt oder null zurück.
-function lookup_index(content: string) {
+function lookup_index(content: string): IndexPosition | null {
     // Split the file for it's lines
     const lines = content.split('\n');
 
