@@ -1,1 +1,7 @@
 .vs/
+src/
+test/
+node_modules/
+bun.lock
+.gitattributes
+*.tgz

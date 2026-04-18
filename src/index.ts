@@ -118,6 +118,36 @@ function read_and_index(content: string): Heading_Index[] {
 }
 
 
+// Du brauchst eine saubere Slug-Generierung:
+function slugify(text: string): string {
+    return text
+        .toLowerCase()
+        .trim()
+        // Umlaute ersetzen
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        // Sonderzeichen entfernen
+        .replace(/[^a-z0-9\s-]/g, '')
+        // Whitespaces zu -
+        .replace(/\s+/g, '-')
+        // Mehrere - zusammenfassen
+        .replace(/-+/g, '-');
+}
+
+const slugCount: Record<string, number> = {};
+
+function uniqueSlug(slug: string): string {
+    if (!slugCount[slug]) {
+        slugCount[slug] = 0;
+        return slug;
+    }
+    slugCount[slug]++;
+    return `${slug}-${slugCount[slug]}`;
+}
+
+
 // ------------------------------------------------------------
 // Funktion: write_index
 // ------------------------------------------------------------
@@ -128,8 +158,10 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
 
     // Den eigentlichen Indextext aus den Überschriften aufbauen
     const index_lines = index.map(item => {
-        // Jede Überschrift wird als verschachtelte Markdown-Liste dargestellt
-        return `${'  '.repeat((item.level - 1))}- [${item.title}](#${item.title.replace(/\s+/g, '-').toLowerCase()})`;
+        const base = slugify(item.title);
+        const finalSlug = uniqueSlug(base);
+
+        return `${'  '.repeat((item.level - 1))}- [${item.title}](#${finalSlug})`;
     });
 
     // Updating the Index
@@ -275,6 +307,9 @@ function lookup_index(content: string): IndexPosition | null {
 // 3. Überschriften einlesen
 // 4. Index schreiben
 function create(file_path: string) {
+    // Reset für jede Datei
+    for (const key in slugCount) delete slugCount[key];
+
     // Read the content of the File
     const content = fs.readFileSync(file_path, 'utf-8');
 
