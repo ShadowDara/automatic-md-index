@@ -194,6 +194,7 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
     Last Update Time of the Index:
     ${now.toISOString()}
 -->
+
 ` + "## Index";
 
         // Message which gets added after the Creation of an Index
