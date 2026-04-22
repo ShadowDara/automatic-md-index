@@ -55,6 +55,15 @@ const error = {
     2: "eww"
 }
 
+
+function strip_code_blocks(content: string): string {
+    return content
+        // entfernt ```...``` (inkl. Sprache)
+        .replace(/```[\s\S]*?```/g, '')
+        // optional: entfernt auch ~~~ code blocks
+        .replace(/~~~[\s\S]*?~~~/g, '');
+}
+
 // ------------------------------------------------------------
 // Funktion: read_and_index
 // ------------------------------------------------------------
@@ -320,8 +329,10 @@ function create(file_path: string) {
     // Reset für jede Datei
     for (const key in slugCount) delete slugCount[key];
 
-    // Read the content of the File
-    const content = fs.readFileSync(file_path, 'utf-8');
+    let content = fs.readFileSync(file_path, 'utf-8');
+
+    // 🔥 Codeblöcke vorher entfernen
+    content = strip_code_blocks(content);
 
     // Get the Index Position
     const index_position = lookup_index(content);
