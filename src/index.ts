@@ -21,6 +21,7 @@ import { checklastcharacter } from './check';
 // Const for the Index Recognition
 const index_start = "<!--$$MD_INDEX_START$$-->";
 const index_end = "<!--$$MD_INDEX_END$$-->";
+
 export const index_create = "<!--$$MD_INDEX$$-->";
 
 // Testmodus – aktiviert zusätzliche Konsolenausgaben
@@ -29,6 +30,9 @@ let test_mode = false;
 // If true the programm closes if there was no index found in
 // in one of the Markdown files
 let strict_mode = true;
+
+// Ignore the First Heading
+let ignore_h1 = false;
 
 // Interface zur Beschreibung der Position, an der der Index erstellt oder aktualisiert wird
 export interface IndexPosition {
@@ -157,7 +161,12 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
     const lines = content.split('\n');
 
     // Den eigentlichen Indextext aus den Überschriften aufbauen
-    const index_lines = index.map(item => {
+    const index_lines = index
+    .filter(item => {
+        if (ignore_h1 && item.level === 1) return false;
+        return true;
+    })
+    .map(item => {
         const base = slugify(item.title);
         const finalSlug = uniqueSlug(base);
 
@@ -373,10 +382,17 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
             mdindex_help();
             process.exit(0);
         }
+
+        // Ignore the First Heading
+        if (arg === '--no-h1') {
+            ignore_h1 = true;
+        }
+
         // Strict Mode
         if (arg === '--no-strict') {
             strict_mode = false;
         }
+
         // // Wenn "--test" übergeben wurde, Testmodus aktivieren
         // if (arg === '--test') {
         //     test_mode = true;
