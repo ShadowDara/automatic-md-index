@@ -8,7 +8,7 @@ import {
 } from './index';
 
 // Function to update the Index
-export function update_index(index_position: IndexPosition, file_path: string, lines: string[]): void {
+export function update_index(index_position: IndexPosition, file_path: string, lines: string[], ignore_h1: boolean): void {
     // Print Info
     console.log("Updating Index for File: " + file_path);
 
@@ -46,7 +46,7 @@ export function update_index(index_position: IndexPosition, file_path: string, l
     }
 
     // Neuen Index generieren
-    write_index(file_path, index, index_position_new, content);
+    write_index(file_path, index, index_position_new, content, ignore_h1);
 
     // Returning because the function calls itself
     return;

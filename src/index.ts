@@ -31,9 +31,6 @@ let test_mode = false;
 // in one of the Markdown files
 let strict_mode = true;
 
-// Ignore the First Heading
-let ignore_h1 = false;
-
 // Interface zur Beschreibung der Position, an der der Index erstellt oder aktualisiert wird
 export interface IndexPosition {
     type: 'create' | 'update'; // Gibt an, ob der Index neu erstellt oder aktualisiert wird
@@ -166,7 +163,7 @@ function uniqueSlug(slug: string): string {
 // ------------------------------------------------------------
 // Schreibt den erstellten Index in die Markdown-Datei.
 // Je nach Typ (create/update) wird er entweder neu eingefügt oder ersetzt.
-function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition, content: String): void {
+function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition, content: String, ignore_h1: boolean): void {
     const lines = content.split('\n');
 
     // Den eigentlichen Indextext aus den Überschriften aufbauen
@@ -184,7 +181,7 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
 
     // Updating the Index
     if (index_position.type === 'update') {
-        update_index(index_position, file_path, lines);
+        update_index(index_position, file_path, lines, ignore_h1);
 
         // Return because update_index() although calles this function
         return;
@@ -325,7 +322,7 @@ function lookup_index(content: string): IndexPosition | null {
 // 2. Position für Index finden
 // 3. Überschriften einlesen
 // 4. Index schreiben
-function create(file_path: string) {
+function create(file_path: string, ignore_h1: boolean) {
     // Reset für jede Datei
     for (const key in slugCount) delete slugCount[key];
 
@@ -354,7 +351,7 @@ function create(file_path: string) {
         const index = read_and_index(content);
         if (index_position !== null) {
             const content = fs.readFileSync(file_path, 'utf-8');
-            write_index(file_path, index, index_position, content);
+            write_index(file_path, index, index_position, content, ignore_h1);
         } else {
             console.error(error[1]);
         }
@@ -383,6 +380,10 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     // eines Ordners nach .md-Dateien
 
     let filearr: string[] = [];
+
+    // Ignore the First Heading
+    let ignore_h1 = false;
+
 
     const args = process.argv.slice(2);
     let execution_path = process.cwd(); // aktuelles Arbeitsverzeichnis
@@ -431,7 +432,7 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     for (const file of filearr) {
         // Printing the Current File
         debug_message(file);
-        create(file);
+        create(file, ignore_h1);
     }
 }
 

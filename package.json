@@ -1,6 +1,6 @@
 {
   "name": "automatic-md-index",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Automatically generate a table of contents from headings in Markdown files.",
   "author": "Shadowdara",
   "license": "MIT",
