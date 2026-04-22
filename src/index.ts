@@ -397,6 +397,7 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
 
         // Ignore the First Heading
         if (arg === '--no-h1') {
+            console.log("Heading 1 will be ignored!");
             ignore_h1 = true;
         }
 
