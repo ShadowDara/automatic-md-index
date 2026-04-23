@@ -163,7 +163,7 @@ function uniqueSlug(slug: string): string {
 // ------------------------------------------------------------
 // Schreibt den erstellten Index in die Markdown-Datei.
 // Je nach Typ (create/update) wird er entweder neu eingefügt oder ersetzt.
-function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition, content: String, ignore_h1: boolean): void {
+function write_index(file_path: string, index: Heading_Index[], index_position: IndexPosition, content: String, ignore_h1: boolean, no_timestamp: boolean): void {
     const lines = content.split('\n');
 
     // Den eigentlichen Indextext aus den Überschriften aufbauen
@@ -181,7 +181,7 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
 
     // Updating the Index
     if (index_position.type === 'update') {
-        update_index(index_position, file_path, lines, ignore_h1);
+        update_index(index_position, file_path, lines, ignore_h1, no_timestamp);
 
         // Return because update_index() although calles this function
         return;
@@ -205,9 +205,7 @@ function write_index(file_path: string, index: Heading_Index[], index_position: 
     https://github.com/ShadowDara/automatic-md-index
 
     DO NOT REMOVE THIS CREDIT !!!
-
-    Last Update Time of the Index:
-    ${now.toISOString()}
+${!no_timestamp ? `\n\tLast Update Time of the Index: ${now.toISOString()}` : ""}
 -->
 
 ` + "## Index";
@@ -322,7 +320,7 @@ function lookup_index(content: string): IndexPosition | null {
 // 2. Position für Index finden
 // 3. Überschriften einlesen
 // 4. Index schreiben
-function create(file_path: string, ignore_h1: boolean) {
+function create(file_path: string, ignore_h1: boolean, no_timestamp: boolean) {
     // Reset für jede Datei
     for (const key in slugCount) delete slugCount[key];
 
@@ -351,7 +349,7 @@ function create(file_path: string, ignore_h1: boolean) {
         const index = read_and_index(content);
         if (index_position !== null) {
             const content = fs.readFileSync(file_path, 'utf-8');
-            write_index(file_path, index, index_position, content, ignore_h1);
+            write_index(file_path, index, index_position, content, ignore_h1, no_timestamp);
         } else {
             console.error(error[1]);
         }
@@ -384,6 +382,8 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     // Ignore the First Heading
     let ignore_h1 = false;
 
+    let no_timestamp = false;
+
 
     const args = process.argv.slice(2);
     let execution_path = process.cwd(); // aktuelles Arbeitsverzeichnis
@@ -399,6 +399,11 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
         if (arg === '--no-h1') {
             console.log("Heading 1 will be ignored!");
             ignore_h1 = true;
+        }
+
+        // Dont print the Time
+        if (arg === '--no-timestamp') {
+            no_timestamp = true;
         }
 
         // Strict Mode
@@ -433,7 +438,7 @@ if (path.resolve(__filename) === path.resolve(process.argv[1])) {
     for (const file of filearr) {
         // Printing the Current File
         debug_message(file);
-        create(file, ignore_h1);
+        create(file, ignore_h1, no_timestamp);
     }
 }
 
