@@ -4,6 +4,12 @@ export function mdindex_help(): void {
 
 Run with node index.js <arg>
 
+to generate the Index at the location in your Markdown file, add
+
+<!--$$MD_INDEX$$-->
+
+to it, and the Index will generated and updated there!
+
 <arg>:
     --help        to print this Help Message
     --test        to enable the test mode for Debug Infos

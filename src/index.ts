@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-// Shebang
 
 /* 
  * MIT License Shadowdara 2025
@@ -373,7 +371,7 @@ function debug_message(msg: string): void {
 // ------------------------------------------------------------
 // CLI-Teil (wird nur ausgeführt, wenn Datei direkt gestartet wird)
 // ------------------------------------------------------------
-if (path.resolve(__filename) === path.resolve(process.argv[1])) {
+export function main() {
     // Ermöglicht den Testmodus (--test) und das automatische Durchsuchen
     // eines Ordners nach .md-Dateien
 
